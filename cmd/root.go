@@ -19,17 +19,17 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		outFile, err := usecase.ParsePrismaSchemaToGoStructs(schemaFile, outDir)
 		if err != nil {
-			fmt.Println("Error parsing file:", err)
+			fmt.Println("prisma-to-go: error parsing file:", err)
 			os.Exit(1)
 		}
 
 		command := exec.Command("gofmt", "-w", outFile)
 		if err := command.Run(); err != nil {
-			fmt.Println("Error running gofmt:", err)
+			fmt.Println("prisma-to-go: error running gofmt:", err)
 			os.Exit(1)
 		}
 
-		fmt.Println("Successfully parsed prisma schema to Golang structs!")
+		fmt.Printf("prisma-to-go: wrote %s\n", outFile)
 	},
 }
 
