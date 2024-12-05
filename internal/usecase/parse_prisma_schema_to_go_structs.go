@@ -13,18 +13,30 @@ import (
 
 // Maps Prisma types to Go types
 var typeMap = map[string]string{
-	"String":   "string",
-	"DateTime": "time.Time",
-	"Int":      "int",
-	"Float":    "float64",
 	"BigInt":   "int64",
-	"Decimal":  "float64",
-	"Json":     "string",
 	"Boolean":  "bool",
 	"Bytes":    "[]byte",
+	"DateTime": "time.Time",
+	"Decimal":  "float64",
+	"Float":    "float64",
+	"Int":      "int",
+	"String":   "string",
+	"Json":     "string",
 }
 
-func ParsePrismaSchemaToGoStructs(schemaPath, outDir string) error {
+func init() {
+	edgeCases := []string{
+		"id",
+		"url",
+	}
+	for _, from := range edgeCases {
+		to := strings.ToUpper(from)
+		strcase.ConfigureAcronym(strcase.ToCamel(from), to)
+		strcase.ConfigureAcronym(from, to)
+	}
+}
+
+func ParsePrismaSchemaToGoStructs(schemaPath, outDir string) (string, error) {
 	return processSchema(schemaPath, outDir)
 }
 
@@ -45,11 +57,6 @@ func parseModel(lines []string) (string, bool, bool) {
 			structName = modelMatch[1]
 		} else if fieldMatch := fieldRegex.FindStringSubmatch(line); fieldMatch != nil {
 			fieldName := strcase.ToCamel(fieldMatch[1])
-
-			if strings.HasSuffix(fieldName, "Id") {
-				fieldName = strings.TrimSuffix(fieldName, "Id")
-				fieldName += "ID"
-			}
 
 			fieldType := typeMap[fieldMatch[2]]
 			if uuidRegex.MatchString(line) {
@@ -73,7 +80,7 @@ func parseModel(lines []string) (string, bool, bool) {
 				usesTime = true
 			}
 
-			fields = append(fields, fmt.Sprintf("\t%s %s `json:\"%s\"`", fieldName, fieldType, fieldMatch[1]))
+			fields = append(fields, fmt.Sprintf("\t%s %s `json:\"%s,omitempty\"`", fieldName, fieldType, fieldMatch[1]))
 		}
 	}
 
@@ -122,10 +129,10 @@ func parseEnum(lines []string) string {
 }
 
 // Reads and processes the Prisma schema file
-func processSchema(filePath, outDir string) error {
+func processSchema(filePath, outDir string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("error opening file: %w", err)
+		return "", fmt.Errorf("error opening file: %w", err)
 	}
 	defer file.Close()
 
@@ -205,13 +212,13 @@ func processSchema(filePath, outDir string) error {
 	// Write to the output file
 	err = os.MkdirAll(outDir, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("error creating output directory: %w", err)
+		return "", fmt.Errorf("error creating output directory: %w", err)
 	}
 
 	err = os.WriteFile(outputFileName, []byte(finalOutput), 0644)
 	if err != nil {
-		return fmt.Errorf("error writing to file: %w", err)
+		return "", fmt.Errorf("error writing to file: %w", err)
 	}
 
-	return nil
+	return outputFileName, nil
 }

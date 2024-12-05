@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/danielmesquitta/prisma-to-go/internal/usecase"
 	"github.com/spf13/cobra"
@@ -24,13 +25,19 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		err := usecase.ParsePrismaSchemaToGoStructs(schemaFile, outDir)
+		outFile, err := usecase.ParsePrismaSchemaToGoStructs(schemaFile, outDir)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error parsing file:", err)
 			os.Exit(1)
 		}
 
-		fmt.Printf("Converted Prisma schema to Go structs in %s\n", outDir)
+		command := exec.Command("gofmt", "-w", outFile)
+		if err := command.Run(); err != nil {
+			fmt.Println("Error running gofmt:", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Successfully parsed prisma schema to Golang structs")
 	},
 }
 
@@ -44,9 +51,17 @@ func Execute() {
 }
 
 func init() {
-	// Define required flags
+	var schemaFlag, outFlag string
+
 	rootCmd.Flags().
-		StringVarP(&schemaFile, "schema", "s", "", "Path to the Prisma schema file (default: ./schema.prisma)")
+		StringVarP(&schemaFlag, "schema", "s", "", "Path to the Prisma schema file (default: ./schema.prisma)")
 	rootCmd.Flags().
-		StringVarP(&outDir, "out", "o", "", "Output directory for Go structs (default: ./models)")
+		StringVarP(&outFlag, "out", "o", "", "Output directory for Go structs (default: ./models)")
+
+	if schemaFlag != "" {
+		schemaFile = schemaFlag
+	}
+	if outFlag != "" {
+		outDir = outFlag
+	}
 }
