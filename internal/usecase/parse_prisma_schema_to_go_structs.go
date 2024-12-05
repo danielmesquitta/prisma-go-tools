@@ -36,7 +36,9 @@ func init() {
 	}
 }
 
-func ParsePrismaSchemaToGoStructs(schemaPath, outDir string) (string, error) {
+func ParsePrismaSchemaToGoStructs(
+	schemaPath, outDir string,
+) (outFile string, err error) {
 	return processSchema(schemaPath, outDir)
 }
 

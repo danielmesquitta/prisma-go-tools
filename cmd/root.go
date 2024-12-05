@@ -44,14 +44,7 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().
-		StringVarP(&schemaFile, "schema", "s", "", "Path to the Prisma schema file (default: ./schema.prisma)")
+		StringVarP(&schemaFile, "schema", "s", "./schema.prisma", "Path to the Prisma schema file (default: ./schema.prisma)")
 	rootCmd.Flags().
-		StringVarP(&outDir, "output", "o", "", "Output directory for Go structs (default: ./models)")
-
-	if schemaFile == "" {
-		schemaFile = "./schema.prisma"
-	}
-	if outDir == "" {
-		outDir = "./models"
-	}
+		StringVarP(&outDir, "output", "o", "./models", "Output directory for Go structs (default: ./models)")
 }
