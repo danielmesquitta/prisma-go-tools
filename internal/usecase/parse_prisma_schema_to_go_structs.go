@@ -49,7 +49,6 @@ func parseModel(lines []string) (string, bool, bool) {
 	modelRegex := regexp.MustCompile(`model\s+(\w+)`)
 	fieldRegex := regexp.MustCompile(`\s*(\w+)\s+(\w+)(\[\])?\s*(\?)?.*`)
 	uuidRegex := regexp.MustCompile(`@db\.Uuid`)
-
 	usesTime := false
 	usesUUID := false
 
@@ -66,7 +65,7 @@ func parseModel(lines []string) (string, bool, bool) {
 				usesUUID = true
 			}
 
-			// Handle enums or custom types
+			// Do not include relationships
 			if _, ok := typeMap[fieldMatch[2]]; !ok {
 				continue
 			}
@@ -101,10 +100,12 @@ func parseEnum(lines []string) string {
 	enumRegex := regexp.MustCompile(`enum\s+(\w+)`)
 	valueRegex := regexp.MustCompile(`^\s*(\w+)`)
 
+	// Parse enum name and values and add to type map
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if enumMatch := enumRegex.FindStringSubmatch(line); enumMatch != nil {
 			enumName = enumMatch[1]
+			typeMap[enumName] = enumName
 		} else if valueMatch := valueRegex.FindStringSubmatch(line); valueMatch != nil {
 			value := valueMatch[1]
 			values = append(values, value)
@@ -164,6 +165,16 @@ func processSchema(filePath, outDir string) (string, error) {
 	usesTime := false
 	usesUUID := false
 
+	// First, parse enums
+	for _, block := range blocks {
+		if strings.HasPrefix(strings.TrimSpace(block[0]), "enum ") {
+			enumDef := parseEnum(block)
+			result.WriteString(enumDef)
+			result.WriteString("\n\n")
+		}
+	}
+
+	// Next, parse models
 	for _, block := range blocks {
 		if strings.HasPrefix(strings.TrimSpace(block[0]), "model ") {
 			structDef, timeUsed, uuidUsed := parseModel(block)
@@ -176,10 +187,6 @@ func processSchema(filePath, outDir string) (string, error) {
 			if uuidUsed {
 				usesUUID = true
 			}
-		} else if strings.HasPrefix(strings.TrimSpace(block[0]), "enum ") {
-			enumDef := parseEnum(block)
-			result.WriteString(enumDef)
-			result.WriteString("\n\n")
 		}
 	}
 
