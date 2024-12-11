@@ -2,10 +2,7 @@ module github.com/danielmesquitta/prisma-to-go
 
 go 1.23.3
 
-require (
-	github.com/iancoleman/strcase v0.3.0
-	github.com/spf13/cobra v1.8.1
-)
+require github.com/spf13/cobra v1.8.1
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
