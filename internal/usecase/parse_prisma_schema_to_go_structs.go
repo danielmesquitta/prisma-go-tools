@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/iancoleman/strcase"
+	"github.com/danielmesquitta/prisma-to-go/internal/pkg/strcase"
 )
 
 // Maps Prisma types to Go types
@@ -22,18 +23,6 @@ var typeMap = map[string]string{
 	"Int":      "int",
 	"String":   "string",
 	"Json":     "string",
-}
-
-func init() {
-	edgeCases := []string{
-		"id",
-		"url",
-	}
-	for _, from := range edgeCases {
-		to := strings.ToUpper(from)
-		strcase.ConfigureAcronym(strcase.ToCamel(from), to)
-		strcase.ConfigureAcronym(from, to)
-	}
 }
 
 func ParsePrismaSchemaToGoStructs(
@@ -192,7 +181,7 @@ func processSchema(filePath, outDir string) (string, error) {
 
 	// Determine package name and output file name
 	outDirBase := filepath.Base(outDir)
-	outputFileName := filepath.Join(
+	outputFilePath := filepath.Join(
 		outDir,
 		fmt.Sprintf("%s_gen.go", outDirBase),
 	)
@@ -224,10 +213,19 @@ func processSchema(filePath, outDir string) (string, error) {
 		return "", fmt.Errorf("error creating output directory: %w", err)
 	}
 
-	err = os.WriteFile(outputFileName, []byte(finalOutput), 0644)
+	err = os.WriteFile(outputFilePath, []byte(finalOutput), 0644)
 	if err != nil {
 		return "", fmt.Errorf("error writing to file: %w", err)
 	}
 
-	return outputFileName, nil
+	if err := formatGoFile(outputFilePath); err != nil {
+		return "", fmt.Errorf("error formatting file: %w", err)
+	}
+
+	return outputFilePath, nil
+}
+
+func formatGoFile(filePath string) error {
+	command := exec.Command("gofmt", "-w", filePath)
+	return command.Run()
 }

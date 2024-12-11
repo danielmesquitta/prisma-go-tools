@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
 	"github.com/danielmesquitta/prisma-to-go/internal/usecase"
 	"github.com/spf13/cobra"
@@ -19,13 +18,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		outFile, err := usecase.ParsePrismaSchemaToGoStructs(schemaFile, outDir)
 		if err != nil {
-			fmt.Println("prisma-to-go: error parsing file:", err)
-			os.Exit(1)
-		}
-
-		command := exec.Command("gofmt", "-w", outFile)
-		if err := command.Run(); err != nil {
-			fmt.Println("prisma-to-go: error running gofmt:", err)
+			fmt.Println("prisma-to-go: ", err)
 			os.Exit(1)
 		}
 
