@@ -68,7 +68,7 @@ func parseModel(lines []string) (string, bool, bool) {
 
 			// Handle enums or custom types
 			if _, ok := typeMap[fieldMatch[2]]; !ok {
-				fieldType = fieldMatch[2] // Keep custom type as-is
+				continue
 			}
 
 			// Add list or pointer handling
