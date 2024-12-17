@@ -11,19 +11,6 @@ import (
 	"github.com/danielmesquitta/prisma-to-go/internal/pkg/strcase"
 )
 
-// Maps Prisma types to Go types
-var typeMap = map[string]string{
-	"BigInt":   "int64",
-	"Boolean":  "bool",
-	"Bytes":    "[]byte",
-	"DateTime": "time.Time",
-	"Decimal":  "float64",
-	"Float":    "float64",
-	"Int":      "int",
-	"String":   "string",
-	"Json":     "string",
-}
-
 func ParsePrismaSchemaToGoStructs(
 	schemaPath, outDir string,
 ) (outFile string, err error) {
