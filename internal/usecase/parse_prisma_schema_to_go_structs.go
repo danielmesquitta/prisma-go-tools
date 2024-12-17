@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -207,15 +206,9 @@ func processSchema(filePath, outDir string) (string, error) {
 		result.String(),
 	)
 
-	// Write to the output file
-	err = os.MkdirAll(outDir, os.ModePerm)
+	err = writeToFile(outDir, outputFilePath, finalOutput)
 	if err != nil {
-		return "", fmt.Errorf("error creating output directory: %w", err)
-	}
-
-	err = os.WriteFile(outputFilePath, []byte(finalOutput), 0644)
-	if err != nil {
-		return "", fmt.Errorf("error writing to file: %w", err)
+		return "", fmt.Errorf("error creating output file: %w", err)
 	}
 
 	if err := formatGoFile(outputFilePath); err != nil {
@@ -223,9 +216,4 @@ func processSchema(filePath, outDir string) (string, error) {
 	}
 
 	return outputFilePath, nil
-}
-
-func formatGoFile(filePath string) error {
-	command := exec.Command("gofmt", "-w", filePath)
-	return command.Run()
 }
