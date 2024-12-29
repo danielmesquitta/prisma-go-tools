@@ -13,5 +13,9 @@ go install github.com/danielmesquitta/prisma-to-go@latest
 ## Usage
 
 ```bash
-prisma-to-go --schema ./path/to/schema.prisma --output ./path/to/output/dir
+prisma-to-go entities --schema ./path/to/schema.prisma --output ./path/to/output/dir
+```
+
+```bash
+prisma-to-go tables --schema ./path/to/schema.prisma --output ./path/to/output/dir
 ```
