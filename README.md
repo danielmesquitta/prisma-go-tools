@@ -19,3 +19,7 @@ prisma-to-go entities --schema ./path/to/schema.prisma --output ./path/to/output
 ```bash
 prisma-to-go tables --schema ./path/to/schema.prisma --output ./path/to/output/dir
 ```
+
+```bash
+prisma-to-go triggers --schema ./path/to/schema.prisma
+```

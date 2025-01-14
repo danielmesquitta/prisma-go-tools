@@ -35,7 +35,7 @@ var tablesCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(tablesCmd)
 	tablesCmd.Flags().
-		StringVarP(&tablesSchemaFile, "schema", "s", "./schema.prisma", "Path to the Prisma schema file (default: ./schema.prisma)")
+		StringVarP(&tablesSchemaFile, "schema", "s", "./schema.prisma", "Path to the Prisma schema file")
 	tablesCmd.Flags().
-		StringVarP(&tablesOutDir, "output", "o", "./tables", "Output directory for Go Table custom type (default: ./tables)")
+		StringVarP(&tablesOutDir, "output", "o", "./tables", "Output directory for Go Table custom type")
 }

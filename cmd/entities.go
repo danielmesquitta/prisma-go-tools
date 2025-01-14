@@ -35,7 +35,7 @@ var entitiesCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(entitiesCmd)
 	entitiesCmd.Flags().
-		StringVarP(&entitiesSchemaFile, "schema", "s", "./schema.prisma", "Path to the Prisma schema file (default: ./schema.prisma)")
+		StringVarP(&entitiesSchemaFile, "schema", "s", "./schema.prisma", "Path to the Prisma schema file")
 	entitiesCmd.Flags().
-		StringVarP(&entitiesOutDir, "output", "o", "./models", "Output directory for Go entities structs (default: ./models)")
+		StringVarP(&entitiesOutDir, "output", "o", "./models", "Output directory for Go entities structs")
 }
