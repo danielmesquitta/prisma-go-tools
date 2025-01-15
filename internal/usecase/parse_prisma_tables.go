@@ -18,7 +18,12 @@ func ParsePrismaTables(
 	outputFilePath := filepath.Join(outDir, "table_gen.go")
 
 	// Extract table names and columns
-	tables, columns, err := extractTableAndColumnNames(schemaPath)
+	tables, err := extractTableNames(schemaPath)
+	if err != nil {
+		return "", err
+	}
+
+	columns, err := extractColumnNames(schemaPath, tables)
 	if err != nil {
 		return "", err
 	}
@@ -40,30 +45,24 @@ func ParsePrismaTables(
 	return outputFilePath, nil
 }
 
-// extractTableAndColumnNames reads schema.prisma and extracts table names and column details
-func extractTableAndColumnNames(
+func extractTableNames(
 	filePath string,
-) (map[string]string, map[string]map[string]string, error) {
+) (map[string]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer file.Close()
 
 	tables := make(map[string]string) // modelName -> tableName
-	columns := make(
-		map[string]map[string]string,
-	) // modelName -> {columnName: columnType}
-	scanner := bufio.NewScanner(file)
 
 	modelRegex := regexp.MustCompile(`^model\s+(\w+)`)
 	mapRegex := regexp.MustCompile(`@@map\("([^"]+)"\)`)
-	fieldRegex := regexp.MustCompile(
-		`^(\w+)\s+(\w+)`,
-	) // Matches columnName columnType
 
 	var currentModel string
 	inModelBlock := false
+
+	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -73,26 +72,11 @@ func extractTableAndColumnNames(
 			currentModel = matches[1]
 			inModelBlock = true
 			tables[currentModel] = strings.ToLower(currentModel)
-			columns[currentModel] = make(
-				map[string]string,
-			) // Initialize column map
 			continue
 		}
 
 		// Parse model fields for column names and types
 		if inModelBlock {
-			if matches := fieldRegex.FindStringSubmatch(line); len(
-				matches,
-			) > 2 {
-				columnName := matches[1]
-				columnType := matches[2]
-
-				// Only add to columns if the column type is in typeMap
-				if _, exists := typeMap[columnType]; exists {
-					columns[currentModel][columnName] = columnType
-				}
-			}
-
 			// Parse @@map for table name
 			if matches := mapRegex.FindStringSubmatch(line); len(matches) > 1 {
 				tables[currentModel] = matches[1]
@@ -106,11 +90,70 @@ func extractTableAndColumnNames(
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, nil, err
+	return tables, nil
+}
+
+func extractColumnNames(
+	filePath string,
+	tables map[string]string,
+) (map[string]map[string]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	columns := map[string]map[string]string{} // modelName -> {tableName.columnName: columnType}
+
+	modelRegex := regexp.MustCompile(`^model\s+(\w+)`)
+	fieldRegex := regexp.MustCompile(
+		`^(\w+)\s+(\w+)`,
+	) // Matches columnName columnType
+
+	var currentModel string
+	inModelBlock := false
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		// Detect new model
+		if matches := modelRegex.FindStringSubmatch(line); len(matches) > 1 {
+			currentModel = matches[1]
+			inModelBlock = true
+			columns[currentModel] = map[string]string{} // Initialize column map
+			continue
+		}
+
+		// Parse model fields for column names and types
+		if inModelBlock {
+			if matches := fieldRegex.FindStringSubmatch(line); len(
+				matches,
+			) > 2 {
+				columnName := matches[1]
+				columnType := matches[2]
+				table := tables[currentModel]
+
+				// Only add to columns if the column type is in typeMap
+				if _, exists := typeMap[columnType]; exists {
+					columns[currentModel][table+"."+columnName] = columnType
+				}
+			}
+
+			// Detect end of model block
+			if strings.HasPrefix(line, "}") {
+				inModelBlock = false
+				currentModel = ""
+			}
+		}
 	}
 
-	return tables, columns, nil
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return columns, nil
 }
 
 // generateGoFileContent generates the content of the Go file
@@ -160,7 +203,8 @@ func generateGoFileContent(
 
 		builder.WriteString(fmt.Sprintf("// Columns for table %s\n", modelName))
 		builder.WriteString("const (\n")
-		for _, colName := range sortedColNames {
+		for _, fullColName := range sortedColNames {
+			colName := strings.Split(fullColName, ".")[1]
 			constName := fmt.Sprintf(
 				"Column%s%s",
 				modelName,
@@ -170,7 +214,7 @@ func generateGoFileContent(
 				fmt.Sprintf(
 					"\t%s Column = \"%s\"\n",
 					constName,
-					colName,
+					fullColName,
 				),
 			)
 		}
