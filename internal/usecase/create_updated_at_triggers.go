@@ -24,6 +24,64 @@ type Field struct {
 	HasUpdatedAt bool
 }
 
+func CreateUpdatedAtTriggers(
+	schemaPath string,
+) ([]string, error) {
+	migrationsDir := filepath.Join(filepath.Dir(schemaPath), "migrations")
+
+	models, err := parseSchemaPrisma(schemaPath)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing schema.prisma: %w", err)
+	}
+
+	existsUpdatedAtTriggersByTableName, err := findExistingUpdatedAtTriggersByTableName(
+		migrationsDir,
+	)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error finding existing updated at triggers: %w",
+			err,
+		)
+	}
+
+	migrationFiles := []string{}
+	for _, model := range models {
+		var updatedAtCols []string
+		for _, field := range model.Fields {
+			if field.HasUpdatedAt {
+				updatedAtCols = append(updatedAtCols, field.ColumnName)
+			}
+		}
+
+		if len(updatedAtCols) == 0 {
+			continue
+		}
+
+		if _, ok := existsUpdatedAtTriggersByTableName[model.TableName]; ok {
+			continue
+		}
+
+		triggerSQL := generateTriggerSQL(model.TableName, updatedAtCols)
+
+		migrationFile, err := createNewMigrationFile(
+			migrationsDir,
+			model.TableName,
+			triggerSQL,
+		)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"error creating new migration for table %s: %w",
+				model.TableName,
+				err,
+			)
+		}
+
+		migrationFiles = append(migrationFiles, migrationFile)
+	}
+
+	return migrationFiles, nil
+}
+
 // parseSchemaPrisma reads the `schema.prisma` file and extracts:
 //   - model name
 //   - table name (@@map if present, otherwise model name)
@@ -125,40 +183,36 @@ func parseSchemaPrisma(schemaPath string) ([]Model, error) {
 	return models, nil
 }
 
-// triggerExistsInMigrations scans .sql files in the prisma/migrations folder
-// to see if a trigger already exists for a given table.
-func triggerExistsInMigrations(migrationsDir, tableName string) (bool, error) {
+// findExistingUpdatedAtTriggersByTableName scans the prisma/migrations folder
+// to find all existing updated_at triggers.
+func findExistingUpdatedAtTriggersByTableName(
+	migrationsDir string,
+) (map[string]struct{}, error) {
+	existingTriggers := map[string]struct{}{}
+
 	err := filepath.Walk(
 		migrationsDir,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if !info.IsDir() && strings.HasSuffix(info.Name(), ".sql") {
-				content, err := os.ReadFile(path)
-				if err != nil {
-					return err
-				}
-
-				if strings.Contains(
-					string(content),
-					fmt.Sprintf(" ON %s", tableName),
-				) ||
-					strings.Contains(
-						string(content),
-						fmt.Sprintf(" ON \"%s\"", tableName),
-					) {
-					return filepath.SkipDir
-				}
+			if !info.IsDir() {
+				return filepath.SkipDir
 			}
+			split := strings.Split(info.Name(), "_updated_at_")
+			if len(split) != 2 {
+				return nil
+			}
+			tableName := split[1]
+			existingTriggers[tableName] = struct{}{}
 			return nil
 		},
 	)
-
-	if err == filepath.SkipDir {
-		return true, nil
+	if !(err == filepath.SkipDir || err == nil) {
+		return nil, err
 	}
-	return false, err
+
+	return existingTriggers, nil
 }
 
 // generateTriggerSQL generates a block of SQL that creates a trigger to auto-update
@@ -206,61 +260,4 @@ func createNewMigrationFile(
 	}
 
 	return migrationFilePath, nil
-}
-
-func CreateUpdatedAtTriggers(
-	schemaPath string,
-) ([]string, error) {
-	migrationsDir := filepath.Join(filepath.Dir(schemaPath), "migrations")
-
-	models, err := parseSchemaPrisma(schemaPath)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing schema.prisma: %w", err)
-	}
-
-	migrationFiles := []string{}
-	for _, model := range models {
-		var updatedAtCols []string
-		for _, field := range model.Fields {
-			if field.HasUpdatedAt {
-				updatedAtCols = append(updatedAtCols, field.ColumnName)
-			}
-		}
-
-		if len(updatedAtCols) == 0 {
-			continue
-		}
-
-		exists, err := triggerExistsInMigrations(migrationsDir, model.TableName)
-		if err != nil {
-			return nil, fmt.Errorf(
-				"error checking migrations for table %s: %w",
-				model.TableName,
-				err,
-			)
-		}
-
-		if exists {
-			continue
-		}
-
-		triggerSQL := generateTriggerSQL(model.TableName, updatedAtCols)
-
-		migrationFile, err := createNewMigrationFile(
-			migrationsDir,
-			model.TableName,
-			triggerSQL,
-		)
-		if err != nil {
-			return nil, fmt.Errorf(
-				"error creating new migration for table %s: %w",
-				model.TableName,
-				err,
-			)
-		}
-
-		migrationFiles = append(migrationFiles, migrationFile)
-	}
-
-	return migrationFiles, nil
 }
