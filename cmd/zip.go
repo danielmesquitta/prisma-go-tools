@@ -16,7 +16,7 @@ var zipCmd = &cobra.Command{
 	Short: "Zip migrations dir",
 	Long:  `Zip migrations dir`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := usecase.UnZipMigrations(zipSchemaFile)
+		err := usecase.ZipMigrations(zipSchemaFile)
 		if err != nil {
 			fmt.Println("prisma-go-tools: ", err)
 			os.Exit(1)
