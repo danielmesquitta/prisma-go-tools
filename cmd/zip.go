@@ -22,7 +22,7 @@ var zipCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("prisma-go-tools zip: done!\n")
+		fmt.Printf("prisma-go-tools zip: done\n")
 	},
 }
 

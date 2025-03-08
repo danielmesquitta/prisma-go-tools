@@ -22,7 +22,7 @@ var unzipCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("prisma-go-tools unzip: done!\n")
+		fmt.Printf("prisma-go-tools unzip: done\n")
 	},
 }
 
