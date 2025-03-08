@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/danielmesquitta/prisma-go-tools/internal/pkg/strcase"
+	"github.com/ettle/strcase"
 )
 
 func PrismaToGoStructs(
@@ -32,7 +32,7 @@ func parseModel(lines []string) (string, bool, bool) {
 		if modelMatch := modelRegex.FindStringSubmatch(line); modelMatch != nil {
 			structName = modelMatch[1]
 		} else if fieldMatch := fieldRegex.FindStringSubmatch(line); fieldMatch != nil {
-			fieldName := strcase.ToCamel(fieldMatch[1])
+			fieldName := strcase.ToGoPascal(fieldMatch[1])
 
 			fieldType := typeMap[fieldMatch[2]]
 			if uuidRegex.MatchString(line) {
@@ -95,7 +95,7 @@ func parseEnum(lines []string) string {
 			fmt.Sprintf(
 				"\t%s%s %s = \"%s\"\n",
 				enumName,
-				strcase.ToCamel(value),
+				strcase.ToGoPascal(value),
 				enumName,
 				value,
 			),

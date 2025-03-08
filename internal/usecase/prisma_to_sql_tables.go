@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/danielmesquitta/prisma-go-tools/internal/pkg/strcase"
+	"github.com/ettle/strcase"
 )
 
 func PrismaToSQLTables(
@@ -182,17 +182,17 @@ func generateGoFileContent(
 		tableName := tables[modelName]
 
 		// Generate type for each table
-		builder.WriteString(fmt.Sprintf("type Table%s string\n\n", modelName))
+		builder.WriteString(fmt.Sprintf("type table%s string\n\n", modelName))
 
 		// Generate String() method for each table type
 		builder.WriteString(
-			fmt.Sprintf("func (t Table%s) String() string {\n", modelName),
+			fmt.Sprintf("func (t table%s) String() string {\n", modelName),
 		)
 		builder.WriteString("\treturn string(t)\n")
 		builder.WriteString("}\n\n")
 
 		builder.WriteString(
-			fmt.Sprintf("func (t Table%s) ColumnAll() string {\n", modelName),
+			fmt.Sprintf("func (t table%s) ColumnAll() string {\n", modelName),
 		)
 		builder.WriteString("\treturn fmt.Sprintf(\"%s.*\", t)\n")
 		builder.WriteString("}\n\n")
@@ -204,13 +204,13 @@ func generateGoFileContent(
 			colName := strings.Split(fullColName, ".")[1]
 			methodName := fmt.Sprintf(
 				"Column%s",
-				strcase.ToCamel(colName),
+				strcase.ToGoPascal(colName),
 			)
 
 			// Generate method for each column in the table
 			builder.WriteString(
 				fmt.Sprintf(
-					"func (t Table%s) %s() string {\n",
+					"func (t table%s) %s() string {\n",
 					modelName,
 					methodName,
 				),
@@ -223,8 +223,8 @@ func generateGoFileContent(
 
 		builder.WriteString(
 			fmt.Sprintf(
-				"const table%s = Table%s(\"%s\")\n\n",
-				modelName,
+				"const Table%s = table%s(\"%s\")\n\n",
+				strcase.ToGoPascal(modelName),
 				modelName,
 				tableName,
 			),
