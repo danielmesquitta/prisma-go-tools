@@ -1,6 +1,6 @@
 # Prisma Go Tools
 
-Parser to convert schema.prisma files into Golang structs
+Tooling to convert schema.prisma files into Golang code
 
 I appreciate Prisma’s migration management, but I prefer writing raw SQL queries over using ORMs. To combine the best of both worlds, I created this parser. It allows me to use Prisma's migration management without relying on its ORM.
 
