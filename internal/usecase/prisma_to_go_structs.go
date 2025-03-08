@@ -11,7 +11,7 @@ import (
 	"github.com/danielmesquitta/prisma-go-tools/internal/pkg/strcase"
 )
 
-func ParsePrismaSchemaToGoStructs(
+func PrismaToGoStructs(
 	schemaPath, outDir string,
 ) (outFile string, err error) {
 	return processSchema(schemaPath, outDir)

@@ -12,7 +12,7 @@ import (
 	"github.com/danielmesquitta/prisma-go-tools/internal/pkg/strcase"
 )
 
-func ParsePrismaTables(
+func PrismaToSQLTables(
 	schemaPath, outDir string,
 ) (string, error) {
 	outputFilePath := filepath.Join(outDir, "table_gen.go")

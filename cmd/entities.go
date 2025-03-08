@@ -19,7 +19,7 @@ var entitiesCmd = &cobra.Command{
 	Short: "Convert schema.prisma models to Go structs",
 	Long:  `Convert schema.prisma models to Go structs.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		outFile, err := usecase.ParsePrismaSchemaToGoStructs(
+		outFile, err := usecase.PrismaToGoStructs(
 			entitiesSchemaFile,
 			entitiesOutDir,
 		)

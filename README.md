@@ -1,4 +1,4 @@
-# Prisma to Go
+# Prisma Go Tools
 
 Parser to convert schema.prisma files into Golang structs
 

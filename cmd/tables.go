@@ -19,7 +19,7 @@ var tablesCmd = &cobra.Command{
 	Short: "Convert schema.prisma tables to a Go custom type",
 	Long:  `Convert schema.prisma tables to a Go custom type`,
 	Run: func(cmd *cobra.Command, args []string) {
-		outFile, err := usecase.ParsePrismaTables(
+		outFile, err := usecase.PrismaToSQLTables(
 			tablesSchemaFile,
 			tablesOutDir,
 		)
