@@ -7,19 +7,19 @@ I appreciate Prisma’s migration management, but I prefer writing raw SQL queri
 ## Installation
 
 ```bash
-go install github.com/danielmesquitta/prisma-to-go@latest
+go install github.com/danielmesquitta/prisma-go-tools@latest
 ```
 
 ## Usage
 
 ```bash
-prisma-to-go entities --schema ./path/to/schema.prisma --output ./path/to/output/dir
+prisma-go-tools entities --schema ./path/to/schema.prisma --output ./path/to/output/dir
 ```
 
 ```bash
-prisma-to-go tables --schema ./path/to/schema.prisma --output ./path/to/output/dir
+prisma-go-tools tables --schema ./path/to/schema.prisma --output ./path/to/output/dir
 ```
 
 ```bash
-prisma-to-go triggers --schema ./path/to/schema.prisma
+prisma-go-tools triggers --schema ./path/to/schema.prisma
 ```

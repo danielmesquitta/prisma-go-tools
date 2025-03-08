@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/danielmesquitta/prisma-to-go/cmd"
+	"github.com/danielmesquitta/prisma-go-tools/cmd"
 )
 
 func main() {

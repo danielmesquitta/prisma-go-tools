@@ -1,4 +1,4 @@
-module github.com/danielmesquitta/prisma-to-go
+module github.com/danielmesquitta/prisma-go-tools
 
 go 1.23.3
 

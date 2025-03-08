@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/danielmesquitta/prisma-to-go/internal/usecase"
+	"github.com/danielmesquitta/prisma-go-tools/internal/usecase"
 	"github.com/spf13/cobra"
 )
 
@@ -18,11 +18,11 @@ var zipCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		err := usecase.UnZipMigrations(zipSchemaFile)
 		if err != nil {
-			fmt.Println("prisma-to-go: ", err)
+			fmt.Println("prisma-go-tools: ", err)
 			os.Exit(1)
 		}
 
-		fmt.Printf("prisma-to-go zip: done!\n")
+		fmt.Printf("prisma-go-tools zip: done!\n")
 	},
 }
 

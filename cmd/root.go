@@ -8,7 +8,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "prisma-to-go",
+	Use:   "prisma-go-tools",
 	Short: "Convert schema.prisma to Go structs",
 	Long:  `Convert schema.prisma to Go structs`,
 }

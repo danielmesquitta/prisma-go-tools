@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/danielmesquitta/prisma-to-go/internal/usecase"
+	"github.com/danielmesquitta/prisma-go-tools/internal/usecase"
 	"github.com/spf13/cobra"
 )
 
@@ -21,12 +21,12 @@ var triggersCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		outsFiles, err := usecase.CreateUpdatedAtTriggers(triggersSchemaFile)
 		if err != nil {
-			fmt.Println("prisma-to-go: ", err)
+			fmt.Println("prisma-go-tools: ", err)
 			os.Exit(1)
 		}
 
 		for _, outFile := range outsFiles {
-			fmt.Printf("prisma-to-go triggers: wrote %s\n", outFile)
+			fmt.Printf("prisma-go-tools triggers: wrote %s\n", outFile)
 		}
 	},
 }
