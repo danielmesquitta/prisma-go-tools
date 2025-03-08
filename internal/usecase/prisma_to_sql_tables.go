@@ -191,6 +191,12 @@ func generateGoFileContent(
 		builder.WriteString("\treturn string(t)\n")
 		builder.WriteString("}\n\n")
 
+		builder.WriteString(
+			fmt.Sprintf("func (t Table%s) ColumnAll() string {\n", modelName),
+		)
+		builder.WriteString("\treturn fmt.Sprintf(\"%s.*\", t)\n")
+		builder.WriteString("}\n\n")
+
 		// Generate column methods for each table
 		cols := columns[modelName]
 
