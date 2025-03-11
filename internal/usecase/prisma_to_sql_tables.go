@@ -186,7 +186,7 @@ func generateGoFileContent(
 
 		// Generate String() method for each table type
 		builder.WriteString(
-			fmt.Sprintf("func (t table%s) String() string {\n", modelName),
+			fmt.Sprintf("func (t table%s) Table() string {\n", modelName),
 		)
 		builder.WriteString("\treturn string(t)\n")
 		builder.WriteString("}\n\n")
@@ -223,8 +223,8 @@ func generateGoFileContent(
 
 		builder.WriteString(
 			fmt.Sprintf(
-				"const Table%s = table%s(\"%s\")\n\n",
-				strcase.ToGoPascal(modelName),
+				"const %s = table%s(\"%s\")\n\n",
+				modelName,
 				modelName,
 				tableName,
 			),
