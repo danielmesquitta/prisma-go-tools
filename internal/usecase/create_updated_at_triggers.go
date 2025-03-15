@@ -244,7 +244,7 @@ EXECUTE PROCEDURE "%[1]s_updated_at_trigger"();
 func createNewMigrationFile(
 	migrationsDir, tableName, sqlStmt string,
 ) (string, error) {
-	timestamp := time.Now().Format("20060102150405")
+	timestamp := time.Now().Add(time.Second).Format("20060102150405")
 	migrationName := fmt.Sprintf("%s_updated_at_%s", timestamp, tableName)
 	migrationFolder := filepath.Join(migrationsDir, migrationName)
 
