@@ -56,7 +56,7 @@ func parseModel(lines []string) (string, bool, bool) {
 				usesTime = true
 			}
 
-			fields = append(fields, fmt.Sprintf("\t%s %s `json:\"%s,omitempty\"`", fieldName, fieldType, fieldMatch[1]))
+			fields = append(fields, fmt.Sprintf("\t%s %s `db:\"%s\" json:\"%s,omitempty\"`", fieldName, fieldType, fieldMatch[1], fieldMatch[1]))
 		}
 	}
 
