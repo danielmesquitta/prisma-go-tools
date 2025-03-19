@@ -9,15 +9,16 @@ import (
 
 // Maps Prisma types to Go types
 var typeMap = map[string]string{
-	"BigInt":   "int64",
-	"Boolean":  "bool",
-	"Bytes":    "[]byte",
-	"DateTime": "time.Time",
-	"Decimal":  "float64",
-	"Float":    "float64",
-	"Int":      "int",
-	"String":   "string",
-	"Json":     "string",
+	"BigInt":      "int64",
+	"Boolean":     "bool",
+	"Bytes":       "[]byte",
+	"DateTime":    "time.Time",
+	"Decimal":     "float64",
+	"Float":       "float64",
+	"Int":         "int",
+	"String":      "string",
+	"Json":        "string",
+	"Unsupported": "any",
 }
 
 // writeToFile writes the given content to a file
