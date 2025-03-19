@@ -3,6 +3,7 @@ package usecase
 import (
 	"bufio"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -199,8 +200,10 @@ func generateGoFileContent(
 
 		// Generate column methods for each table
 		cols := columns[modelName]
+		fullColNames := slices.Collect(maps.Keys(cols))
+		slices.Sort(fullColNames)
 
-		for fullColName := range cols {
+		for _, fullColName := range fullColNames {
 			colName := strings.Split(fullColName, ".")[1]
 			methodName := fmt.Sprintf(
 				"Column%s",
