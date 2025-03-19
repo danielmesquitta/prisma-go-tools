@@ -45,11 +45,6 @@ func parseModel(lines []string) (string, bool, bool) {
 				continue
 			}
 
-			// Skip unsupported types
-			if fieldMatch[2] == "Unsupported" {
-				continue
-			}
-
 			// Add list or pointer handling
 			if fieldMatch[3] == "[]" {
 				fieldType = "[]" + fieldType // Only apply once for list types
