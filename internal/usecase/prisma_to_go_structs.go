@@ -3,6 +3,7 @@ package usecase
 import (
 	"bufio"
 	"fmt"
+	"go/format"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -193,7 +194,12 @@ func processSchema(filePath, outDir string) (string, error) {
 		result.String(),
 	)
 
-	err = writeToFile(outDir, outputFilePath, finalOutput)
+	formatted, err := format.Source([]byte(finalOutput))
+	if err != nil {
+		return "", fmt.Errorf("error formatting generated code: %w", err)
+	}
+
+	err = writeToFile(outDir, outputFilePath, string(formatted))
 	if err != nil {
 		return "", fmt.Errorf("error creating output file: %w", err)
 	}
