@@ -186,6 +186,12 @@ func generateGoFileContent(
 		builder.WriteString(fmt.Sprintf("type table%s string\n\n", modelName))
 
 		builder.WriteString(
+			fmt.Sprintf("func (t table%s) String() string {\n", modelName),
+		)
+		builder.WriteString("\treturn string(t)\n")
+		builder.WriteString("}\n\n")
+
+		builder.WriteString(
 			fmt.Sprintf("func (t table%s) All() string {\n", modelName),
 		)
 		builder.WriteString("\treturn fmt.Sprintf(\"%s.*\", t)\n")
