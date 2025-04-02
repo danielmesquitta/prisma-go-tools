@@ -185,15 +185,8 @@ func generateGoFileContent(
 		// Generate type for each table
 		builder.WriteString(fmt.Sprintf("type table%s string\n\n", modelName))
 
-		// Generate String() method for each table type
 		builder.WriteString(
-			fmt.Sprintf("func (t table%s) Table() string {\n", modelName),
-		)
-		builder.WriteString("\treturn string(t)\n")
-		builder.WriteString("}\n\n")
-
-		builder.WriteString(
-			fmt.Sprintf("func (t table%s) ColumnAll() string {\n", modelName),
+			fmt.Sprintf("func (t table%s) All() string {\n", modelName),
 		)
 		builder.WriteString("\treturn fmt.Sprintf(\"%s.*\", t)\n")
 		builder.WriteString("}\n\n")
@@ -205,10 +198,7 @@ func generateGoFileContent(
 
 		for _, fullColName := range fullColNames {
 			colName := strings.Split(fullColName, ".")[1]
-			methodName := fmt.Sprintf(
-				"Column%s",
-				strcase.ToGoPascal(colName),
-			)
+			methodName := strcase.ToGoPascal(colName)
 
 			// Generate method for each column in the table
 			builder.WriteString(
